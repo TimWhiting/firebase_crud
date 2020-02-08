@@ -9,7 +9,7 @@ builders:
     target: ":firebase_crud_generator"
     import: "package:firebase_crud_generator/builder.dart"
     builder_factories: ["firebaseCrudBuilder"]
-    build_extensions: { ".dart": [".firebase.g.part"] }
+    build_extensions: { ".dart": [".firebase.g.dart"] }
     auto_apply: dependents
     build_to: cache
     applies_builders: ["source_gen|combining_builder"]
