@@ -11,7 +11,11 @@ class FirebaseRef {
   const FirebaseRef({this.collection});
 }
 
-abstract class FirestoreRepository {
+class Repository {
+  const Repository();
+}
+
+class FirestoreRepository {
   final Firestore _firestore;
   FirestoreRepository({firestore}) : _firestore = firestore;
 }
