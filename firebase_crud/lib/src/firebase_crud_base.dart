@@ -1,7 +1,6 @@
 class FirebaseCRUD {
   final String collection;
-  final bool copyID;
-  const FirebaseCRUD({this.collection, this.copyID});
+  const FirebaseCRUD({this.collection});
 }
 
 class FirebaseRef {
