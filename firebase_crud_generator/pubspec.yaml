@@ -14,10 +14,10 @@ dependencies:
   source_gen: "^0.9.0"
   quiver: ">=0.21.0 <3.0.0"
   firebase_crud:
-    path: ../firebase_crud
-    # git:
-    #   url: https://github.com/TimWhiting/firebase_crud
-    #   path: firebase_crud
+    # path: ../firebase_crud
+    git:
+      url: https://github.com/TimWhiting/firebase_crud
+      path: firebase_crud
 
 dev_dependencies:
   pedantic: "^1.8.0"
