@@ -6,7 +6,8 @@ import 'package:source_gen/source_gen.dart';
 void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, String className, StringBuffer buffer) {
   buffer.writeln('''extension ${className}ToMap on $className {
         Map<String, dynamic> get asFirebaseMap {
-          final jsonMap = serializers.serialize(this, specifiedType:$className) as Map<String, dynamic>;
+          final jsonMap = serializers.serialize(this, specifiedType:FullType($className)) as Map<String, dynamic>;
+          //${getters.map((getter) => getter.metadata.join()).join('\n')}
           //${getters.where((getter) => getter.metadata.any((annotation) => annotation.element.displayName == "FirebaseRef")).toList()}
           return jsonMap;
         }
