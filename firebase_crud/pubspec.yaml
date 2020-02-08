@@ -7,7 +7,10 @@ description: A firebase crud library, use it with the generator to generate exte
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
-#dependencies:
+dependencies:
+  flutter:
+    sdk: flutter
+  cloud_firestore: any
 #  path: ^1.6.0
 
 dev_dependencies:
