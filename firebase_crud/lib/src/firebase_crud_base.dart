@@ -1,25 +1,12 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_core/firebase_core.dart';
-
-class FirebaseCRUD {
+class FirestoreCRUD {
   final String collection;
-  const FirebaseCRUD({this.collection});
+  const FirestoreCRUD({this.collection});
 }
 
-class FirebaseRef {
-  const FirebaseRef();
+class FirestoreRef {
+  const FirestoreRef();
 }
 
-class Repository {
-  const Repository();
+class FirestoreRepository {
+  const FirestoreRepository();
 }
-
-// class FirestoreRepository {
-//   // final Firestore _firestore;
-//   FirestoreRepository({firestore}) : _firestore = firestore;
-// }
-
-// abstract class FirestoreData<T> {
-//   T get firestoreData;
-//   set firestoreData(T data);
-// }

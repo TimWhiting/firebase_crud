@@ -1,14 +1,16 @@
 targets:
   $default:
     builders:
-      firebase_crud_generator|firebaseCrudBuilder:
+      firebase_crud_generator|firestoreRepositoryBuilder:
+        enabled: true
+      firebase_crud_generator|firestoreCrudBuilder:
         enabled: true
 
 builders:
-  magical_builder:
+  firestore_crud_builder:
     target: ":firebase_crud_generator"
     import: "package:firebase_crud_generator/builder.dart"
-    builder_factories: ["firebaseCrudBuilder"]
+    builder_factories: ["firestoreRepositoryBuilder", "firestoreCrudBuilder"]
     build_extensions: { ".dart": [".firebase.g.dart"] }
     auto_apply: dependents
     build_to: cache
