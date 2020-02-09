@@ -7,6 +7,6 @@ import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 import 'firebase_crud_generator.dart';
 
-Builder firebaseCrudBuilder(BuilderOptions _) => SharedPartBuilder([FirestoreCRUDGenerator()], 'firestore_crud');
-Builder firebaseRepositoryBuilder(BuilderOptions _) =>
+Builder firestoreCrudBuilder(BuilderOptions _) => SharedPartBuilder([FirestoreCRUDGenerator()], 'firestore_crud');
+Builder firestoreRepositoryBuilder(BuilderOptions _) =>
     SharedPartBuilder([FirestoreRepositoryGenerator()], 'firestore_repository');
