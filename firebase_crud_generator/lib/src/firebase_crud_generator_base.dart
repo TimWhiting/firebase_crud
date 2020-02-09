@@ -88,7 +88,7 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
 
         Future<List<$className>> getAll${className}s() async {
             final snapshot = await this.collection('people').getDocuments();
-            return snapshot.documents.map((document) => ${className}Snapshot(document).${lowerCaseClassName}FromSnapshot()).toList();
+            return await Future.wait(snapshot.documents.map((document) => ${className}Snapshot(document).${lowerCaseClassName}FromSnapshot()).toList());
         }
       }
     ''');
@@ -96,7 +96,7 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
   buffer.writeln('''extension ${className}Reference on DocumentReference {
         Future<$className> ${lowerCaseClassName}FromReference() async {
           final document = await this.get();
-          return ${className}Snapshot(document).${lowerCaseClassName}FromSnapshot();
+          return await ${className}Snapshot(document).${lowerCaseClassName}FromSnapshot();
         }
       }
     ''');
@@ -107,7 +107,7 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
           : 'jsonMap["${ref.field}"] = await ${ref.type}Reference(jsonMap["${ref.field}"]).${toLowerCamelCase(ref.type)}FromReference();')
       .join('\n');
   buffer.writeln('''extension ${className}Snapshot on DocumentSnapshot {
-      $className ${lowerCaseClassName}FromSnapshot() async {
+      Future<$className> ${lowerCaseClassName}FromSnapshot() async {
           final Map<String, dynamic> jsonMap = this.data;
           jsonMap['id'] = this.documentID;
           $fieldAssigners
