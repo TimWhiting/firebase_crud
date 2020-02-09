@@ -5,7 +5,7 @@ class FirestoreCRUD {
 
 class FirestoreRef {
   final bool isList;
-  const FirestoreRef({this.isList});
+  const FirestoreRef({this.isList = false});
 }
 
 class FirestoreRepository {

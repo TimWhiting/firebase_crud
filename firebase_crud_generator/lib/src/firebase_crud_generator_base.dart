@@ -10,28 +10,41 @@ class FirebaseRefInfo {
   const FirebaseRefInfo({this.field, this.type});
 }
 
+final refName = 'FirestoreRef';
+
 String toLowerCamelCase(String string) {
   return string[0].toLowerCase() + string.substring(1);
 }
 
+FirebaseRefInfo getRefInfo(PropertyAccessorElement field) {
+  final isList = field.metadata.any(
+    (annotation) => annotation.element.enclosingElement.name == refName,
+  );
+  final rawType = field.type.returnType.getDisplayString();
+  final type = isList
+      ? rawType.substring(rawType.indexOf('<') + 1, rawType.indexOf('>'))
+      : field.type.returnType.getDisplayString();
+  return FirebaseRefInfo(field: field.name, type: type);
+}
+
 void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, String className, StringBuffer buffer) {
   final lowerCaseClassName = toLowerCamelCase(className);
-  final refName = 'FirestoreRef';
 
-  final fields = getters
+  final refs = getters
       .where(
         (getter) => getter.metadata.any(
           (annotation) => annotation.element.enclosingElement.name == refName,
         ),
       )
+      .map(getRefInfo)
       .toList();
-  final fieldReferenceExtractors = fields
+
+  final fieldReferenceExtractors = refs
       .map(
-        (field) =>
-            'final ${field.name}Field = ${field.type.returnType.getDisplayString()}FirestoreUtils(this.${field.name}).firestoreRef(_firestore);',
+        (ref) => 'final ${ref.field}Field = ${ref.type}FirestoreUtils(this.${ref.field}).firestoreRef(_firestore);',
       )
       .join('\n');
-  final fieldSettors = fields.map((field) => 'jsonMap["${field.name}"] = ${field.name}Field;').join('\n');
+  final fieldSettors = refs.map((ref) => 'jsonMap["${ref.field}"] = ${ref.field}Field;').join('\n');
   buffer.writeln('''extension ${className}FirestoreUtils on $className {
         Map<String, dynamic> asFirestoreMap(Firestore _firestore) {
           final jsonMap = serializers.serialize(this, specifiedType:FullType($className)) as Map<String, dynamic>;
@@ -73,14 +86,6 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
       }
     ''');
 
-  final refs = fields
-      .map(
-        (getter) => FirebaseRefInfo(
-          field: getter.name,
-          type: getter.type.returnType.getDisplayString(),
-        ),
-      )
-      .toList();
   final fieldAssigners = refs
       .map((ref) =>
           'jsonMap["${ref.field}"] = ${ref.type}Reference(jsonMap["${ref.field}"]).${toLowerCamelCase(ref.type)}FromReference();')
