@@ -7,7 +7,8 @@ import 'package:source_gen/source_gen.dart';
 class FirebaseRefInfo {
   final String field;
   final String type;
-  const FirebaseRefInfo({this.field, this.type});
+  final bool isList;
+  const FirebaseRefInfo({this.field, this.type, this.isList});
 }
 
 final refName = 'FirestoreRef';
@@ -17,14 +18,18 @@ String toLowerCamelCase(String string) {
 }
 
 FirebaseRefInfo getRefInfo(PropertyAccessorElement field) {
-  final isList = field.metadata.any(
-    (annotation) => annotation.element.enclosingElement.name == refName,
-  );
+  final isList = field.metadata
+      .firstWhere(
+        (annotation) => annotation.element.enclosingElement.name == refName,
+      )
+      .computeConstantValue()
+      .getField('isList')
+      .toBoolValue();
   final rawType = field.type.returnType.getDisplayString();
   final type = isList
       ? rawType.substring(rawType.indexOf('<') + 1, rawType.indexOf('>'))
       : field.type.returnType.getDisplayString();
-  return FirebaseRefInfo(field: field.name, type: type);
+  return FirebaseRefInfo(field: field.name, type: type, isList: isList);
 }
 
 void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, String className, StringBuffer buffer) {
@@ -41,7 +46,9 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
 
   final fieldReferenceExtractors = refs
       .map(
-        (ref) => 'final ${ref.field}Field = ${ref.type}FirestoreUtils(this.${ref.field}).firestoreRef(_firestore);',
+        (ref) => ref.isList
+            ? 'final ${ref.field}Field = this.${ref.field}.map((${ref.type} item) => ${ref.type}FirestoreUtils(item).firestoreRef(_firestore)).toList();'
+            : 'final ${ref.field}Field = ${ref.type}FirestoreUtils(this.${ref.field}).firestoreRef(_firestore);',
       )
       .join('\n');
   final fieldSettors = refs.map((ref) => 'jsonMap["${ref.field}"] = ${ref.field}Field;').join('\n');
@@ -86,22 +93,21 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
       }
     ''');
 
-  final fieldAssigners = refs
-      .map((ref) =>
-          'jsonMap["${ref.field}"] = ${ref.type}Reference(jsonMap["${ref.field}"]).${toLowerCamelCase(ref.type)}FromReference();')
-      .join('\n');
   buffer.writeln('''extension ${className}Reference on DocumentReference {
         Future<$className> ${lowerCaseClassName}FromReference() async {
           final document = await this.get();
           return ${className}Snapshot(document).${lowerCaseClassName}FromSnapshot();
         }
-
-       
       }
     ''');
 
+  final fieldAssigners = refs
+      .map((ref) => ref.isList
+          ? 'jsonMap["${ref.field}"] = await Future.wait((jsonMap["${ref.field}"] as List<DocumentReference>).map((DocumentReference item) => ${ref.type}Reference(item).${toLowerCamelCase(ref.type)}FromReference()).toList());'
+          : 'jsonMap["${ref.field}"] = await ${ref.type}Reference(jsonMap["${ref.field}"]).${toLowerCamelCase(ref.type)}FromReference();')
+      .join('\n');
   buffer.writeln('''extension ${className}Snapshot on DocumentSnapshot {
-      $className ${lowerCaseClassName}FromSnapshot() {
+      $className ${lowerCaseClassName}FromSnapshot() async {
           final Map<String, dynamic> jsonMap = this.data;
           jsonMap['id'] = this.documentID;
           $fieldAssigners
