@@ -4,7 +4,8 @@ class FirestoreCRUD {
 }
 
 class FirestoreRef {
-  const FirestoreRef();
+  final bool isList;
+  const FirestoreRef({this.isList});
 }
 
 class FirestoreRepository {

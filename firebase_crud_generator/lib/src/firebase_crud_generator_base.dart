@@ -16,11 +16,12 @@ String toLowerCamelCase(String string) {
 
 void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, String className, StringBuffer buffer) {
   final lowerCaseClassName = toLowerCamelCase(className);
+  final refName = 'FirestoreRef';
 
   final fields = getters
       .where(
         (getter) => getter.metadata.any(
-          (annotation) => annotation.element.enclosingElement.name == 'FirebaseRef',
+          (annotation) => annotation.element.enclosingElement.name == refName,
         ),
       )
       .toList();
