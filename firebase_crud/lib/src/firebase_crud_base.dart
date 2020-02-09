@@ -7,8 +7,7 @@ class FirebaseCRUD {
 }
 
 class FirebaseRef {
-  final String collection;
-  const FirebaseRef({this.collection});
+  const FirebaseRef();
 }
 
 class Repository {
