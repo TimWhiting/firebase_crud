@@ -103,3 +103,9 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
         }
       }''');
 }
+
+void writeRepositoryMethods(String className, StringBuffer buffer) {
+  buffer.writeln('''extension ${className}Extensions on $className {
+    
+    }''');
+}
