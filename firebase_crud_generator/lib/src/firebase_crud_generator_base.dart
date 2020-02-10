@@ -104,7 +104,7 @@ void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, 
   final fieldAssigners = refs
       .map((ref) => ref.isList
           ? 'jsonMap["${ref.field}"] = await Future.wait((jsonMap["${ref.field}"] as List<DocumentReference>).map((DocumentReference item) => ${ref.type}Reference(item).${toLowerCamelCase(ref.type)}FromReference()).toList());'
-          : 'jsonMap["${ref.field}"] = await ${ref.type}Reference(jsonMap["${ref.field}"]).${toLowerCamelCase(ref.type)}FromReference();')
+          : 'jsonMap["${ref.field}"] = await ${ref.type}Reference(jsonMap["${ref.field}"] as DocumentReference).${toLowerCamelCase(ref.type)}FromReference();')
       .join('\n');
   buffer.writeln('''extension ${className}Snapshot on DocumentSnapshot {
       Future<$className> ${lowerCaseClassName}FromSnapshot() async {
