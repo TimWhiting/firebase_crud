@@ -7,8 +7,21 @@ import 'package:source_gen/source_gen.dart';
 class FirebaseRefInfo {
   final String field;
   final String type;
+  final String keyType;
+  final String valueType;
   final bool isList;
-  const FirebaseRefInfo({this.field, this.type, this.isList});
+  final bool mapValuesRef;
+  final bool mapKeysRef;
+  final bool isMap;
+  const FirebaseRefInfo(
+      {this.field,
+      this.type,
+      this.keyType,
+      this.valueType,
+      this.isList,
+      this.mapValuesRef,
+      this.mapKeysRef,
+      this.isMap});
 }
 
 final refName = 'FirestoreRef';
@@ -18,18 +31,35 @@ String toLowerCamelCase(String string) {
 }
 
 FirebaseRefInfo getRefInfo(PropertyAccessorElement field) {
-  final isList = field.metadata
+  final refField = field.metadata
       .firstWhere(
         (annotation) => annotation.element.enclosingElement.name == refName,
       )
-      .computeConstantValue()
-      .getField('isList')
-      .toBoolValue();
+      .computeConstantValue();
+  final isList = refField.getField('isList').toBoolValue();
+  final isMap = refField.getField('isMap').toBoolValue();
+  final mapKeysRef = refField.getField('mapKeysRef').toBoolValue();
+  final mapValuesRef = refField.getField('mapValuesRef').toBoolValue();
   final rawType = field.type.returnType.getDisplayString();
-  final type = isList
-      ? rawType.substring(rawType.indexOf('<') + 1, rawType.indexOf('>'))
-      : field.type.returnType.getDisplayString();
-  return FirebaseRefInfo(field: field.name, type: type, isList: isList);
+  String type;
+  String keyType, valueType;
+  if (!isMap) {
+    type = isList
+        ? rawType.substring(rawType.indexOf('<') + 1, rawType.indexOf('>'))
+        : field.type.returnType.getDisplayString();
+  } else {
+    keyType = rawType.substring(rawType.indexOf('<') + 1, rawType.indexOf(','));
+    valueType = rawType.substring(rawType.indexOf(',') + 1, rawType.indexOf('>'));
+  }
+  return FirebaseRefInfo(
+      field: field.name,
+      type: type,
+      keyType: keyType,
+      valueType: valueType,
+      isList: isList,
+      isMap: isMap,
+      mapKeysRef: mapKeysRef,
+      mapValuesRef: mapValuesRef);
 }
 
 void writeCRUDMethods(List<PropertyAccessorElement> getters, String collection, String className, StringBuffer buffer) {

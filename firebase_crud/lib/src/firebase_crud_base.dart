@@ -5,7 +5,11 @@ class FirestoreCRUD {
 
 class FirestoreRef {
   final bool isList;
-  const FirestoreRef({this.isList = false});
+  final bool isMap;
+  final bool mapKeysRef;
+  final bool mapValuesRef;
+
+  const FirestoreRef({this.isList = false, this.isMap = false, this.mapValuesRef, this.mapKeysRef});
 }
 
 class FirestoreRepository {
